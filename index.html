@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#17131f">
+<title>CHAMA TICKET</title>
+<style>
+:root{--bg:#100e15;--panel:#1b1723;--panel2:#241d30;--text:#f8f5ff;--muted:#b8adc8;--purple:#a78bfa;--pink:#e879f9;--line:#393044;--good:#b7f7d2}
+*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#29203a 0,#100e15 52%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Sans","Noto Sans JP",sans-serif;min-height:100vh}
+header{padding:calc(env(safe-area-inset-top) + 22px) 20px 16px;max-width:720px;margin:auto}
+.kicker{color:var(--purple);font-size:11px;font-weight:800;letter-spacing:.22em}.title{font-size:28px;font-weight:900;letter-spacing:.02em;margin:6px 0}.subtitle{color:var(--muted);font-size:13px}
+main{max-width:720px;margin:auto;padding:0 16px calc(env(safe-area-inset-bottom) + 28px)}
+.card{background:linear-gradient(145deg,#211a2c,#17141d);border:1px solid var(--line);border-radius:20px;padding:17px;margin:12px 0;box-shadow:0 12px 30px #0002}
+.card h2{font-size:15px;margin:0 0 14px}.row{display:flex;gap:10px}.row>*{flex:1;min-width:0}
+label{display:block;color:var(--muted);font-size:12px;margin:12px 0 6px}
+input,select,textarea{width:100%;background:#100e15;color:var(--text);border:1px solid #443850;border-radius:12px;padding:12px;font:inherit;font-size:14px;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--purple)}
+button{border:0;border-radius:12px;padding:12px 14px;font:inherit;font-weight:800;cursor:pointer}
+.primary{background:linear-gradient(100deg,var(--purple),var(--pink));color:#160e20}
+.secondary{background:#30263d;color:var(--text);border:1px solid #4a3b5b}
+.danger{background:#3a202b;color:#ffd8e4;border:1px solid #693449}
+.full{width:100%;margin-top:12px}.sitebtn{background:#30263d;color:#fff;border:1px solid #554365}
+.sitebtn.active{border-color:var(--pink);box-shadow:inset 0 0 0 1px var(--pink)}
+.small{font-size:12px;color:var(--muted);line-height:1.65}.badge{display:inline-block;border-radius:999px;background:#30263d;color:#d8c8ff;padding:5px 9px;font-size:11px;font-weight:800}
+.event{border:1px solid var(--line);border-radius:15px;padding:13px;margin-top:10px;background:#15111c}
+.eventtop{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.eventname{font-weight:800;overflow-wrap:anywhere}.eventmeta{font-size:12px;color:var(--muted);margin:7px 0 10px;line-height:1.5}.eventactions{display:flex;gap:8px}.eventactions button{flex:1;padding:10px 8px;font-size:12px}
+.notice{border-left:3px solid var(--purple);padding:9px 12px;background:#211a2b;border-radius:0 10px 10px 0;color:#d9cfee;font-size:12px;line-height:1.65}
+hr{border:0;border-top:1px solid var(--line);margin:16px 0}.empty{color:var(--muted);text-align:center;padding:18px 8px;font-size:13px}
+#toast{position:fixed;bottom:calc(env(safe-area-inset-bottom) + 18px);left:50%;transform:translateX(-50%);background:#eee6ff;color:#20172b;border-radius:999px;padding:10px 16px;font-size:13px;font-weight:800;display:none;max-width:90%;z-index:5}
+footer{text-align:center;color:#82768f;font-size:11px;padding:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="kicker">PERSONAL TICKET LAUNCHER</div>
+  <div class="title">CHAMA TICKET <span style="color:var(--pink)">✦</span></div>
+  <div class="subtitle">先着チケ発を、すばやく準備。</div>
+</header>
+<main>
+  <section class="card">
+    <h2>✦ チケットを登録</h2>
+    <label for="eventName">公演名</label>
+    <input id="eventName" placeholder="例：○○ ワンマンライブ">
+    <label>販売サイト</label>
+    <div class="row">
+      <button class="sitebtn active" data-site="LivePocket" type="button">LivePocket</button>
+      <button class="sitebtn" data-site="TicketDive" type="button">TicketDive</button>
+    </div>
+    <label for="eventUrl">販売ページURL</label>
+    <input id="eventUrl" type="url" placeholder="https://..." autocapitalize="off">
+    <div class="row">
+      <div><label for="saleDate">販売日</label><input id="saleDate" type="date"></div>
+      <div><label for="saleTime">販売開始時刻</label><input id="saleTime" type="time"></div>
+    </div>
+    <label for="memo">メモ（任意）</label>
+    <input id="memo" placeholder="枚数・整理番号条件など">
+    <button id="saveBtn" class="primary full" type="button">＋ チケットを登録</button>
+    <p class="small">登録内容はこの端末のブラウザ内に保存されます。サイトのログイン情報やカード情報は保存しません。</p>
+  </section>
+
+  <section class="card">
+    <h2>✦ 登録したチケット</h2>
+    <div class="notice">販売開始時刻に通知が届くことを保証する機能ではありません。確実に気づけるよう、iPhoneの「時計」アプリでもアラームを設定してね。</div>
+    <div id="events"><div class="empty">まだ登録がないよ。上から追加してね。</div></div>
+  </section>
+
+  <section class="card">
+    <h2>✦ チケ発前チェック</h2>
+    <div id="checks"></div>
+    <button id="resetChecks" class="secondary full" type="button">チェックをリセット</button>
+    <hr>
+    <p class="small">このアプリは販売ページを開くための補助ツールです。自動更新・自動申込・自動決済は行いません。各販売サイトの規約と購入制限に従って利用してください。</p>
+  </section>
+  <footer>CHAMA TICKET · 黒 × 紫</footer>
+</main>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+let selectedSite='LivePocket';
+let events=JSON.parse(localStorage.getItem('chama_ticket_events')||'[]');
+const checklist=['ログインできるか確認','購入条件・枚数制限を確認','支払い方法を確認','販売ページを開ける状態にする','iPhoneのアラームを設定'];
+const checked=JSON.parse(localStorage.getItem('chama_ticket_checks')||'{}');
+document.querySelectorAll('[data-site]').forEach(b=>b.addEventListener('click',()=>{
+ selectedSite=b.dataset.site;document.querySelectorAll('[data-site]').forEach(x=>x.classList.toggle('active',x===b));
+}));
+function toast(t){const el=$('#toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2200)}
+function validUrl(v){try{const u=new URL(v);return u.protocol==='https:'||u.protocol==='http:'}catch{return false}}
+function save(){
+ const name=$('#eventName').value.trim(),url=$('#eventUrl').value.trim(),date=$('#saleDate').value,time=$('#saleTime').value,memo=$('#memo').value.trim();
+ if(!name){toast('公演名を入力してね');return}
+ if(!validUrl(url)){toast('正しい販売ページURLを入力してね');return}
+ events.push({id:Date.now().toString(),name,site:selectedSite,url,date,time,memo});
+ localStorage.setItem('chama_ticket_events',JSON.stringify(events));
+ ['eventName','eventUrl','saleDate','saleTime','memo'].forEach(id=>$('#'+id).value='');
+ renderEvents();toast('登録したよ！');
+}
+function fmtDate(d,t){if(!d&&!t)return '販売開始日時 未設定';return (d||'日付未設定')+' '+(t||'時刻未設定')}
+function renderEvents(){
+ const root=$('#events');
+ if(!events.length){root.innerHTML='<div class="empty">まだ登録がないよ。上から追加してね。</div>';return}
+ root.innerHTML='';
+ [...events].sort((a,b)=>((a.date||'')+(a.time||'')).localeCompare((b.date||'')+(b.time||''))).forEach(e=>{
+ const div=document.createElement('div');div.className='event';
+ const top=document.createElement('div');top.className='eventtop';
+ const name=document.createElement('div');name.className='eventname';name.textContent=e.name;
+ const badge=document.createElement('span');badge.className='badge';badge.textContent=e.site;
+ top.append(name,badge);
+ const meta=document.createElement('div');meta.className='eventmeta';meta.textContent=fmtDate(e.date,e.time)+(e.memo?'\\n'+e.memo:'');
+ const actions=document.createElement('div');actions.className='eventactions';
+ const open=document.createElement('button');open.className='primary';open.textContent='販売ページを開く';open.onclick=()=>window.open(e.url,'_blank','noopener');
+ const copy=document.createElement('button');copy.className='secondary';copy.textContent='URLをコピー';copy.onclick=async()=>{try{await navigator.clipboard.writeText(e.url);toast('URLをコピーしたよ')}catch{prompt('このURLをコピーしてね',e.url)}};
+ const del=document.createElement('button');del.className='danger';del.textContent='削除';del.onclick=()=>{if(confirm('この登録を削除する？')){events=events.filter(x=>x.id!==e.id);localStorage.setItem('chama_ticket_events',JSON.stringify(events));renderEvents()}};
+ actions.append(open,copy,del);div.append(top,meta,actions);root.append(div);
+ });
+}
+function renderChecks(){
+ const root=$('#checks');root.innerHTML='';
+ checklist.forEach((txt,i)=>{const lab=document.createElement('label');lab.style.display='flex';lab.style.gap='10px';lab.style.alignItems='center';lab.style.color='var(--text)';lab.style.fontSize='14px';lab.style.margin='12px 0';
+ const input=document.createElement('input');input.type='checkbox';input.style.width='18px';input.style.height='18px';input.style.flex='0 0 auto';input.checked=!!checked[i];
+ input.addEventListener('change',()=>{checked[i]=input.checked;localStorage.setItem('chama_ticket_checks',JSON.stringify(checked))});
+ const span=document.createElement('span');span.textContent=txt;lab.append(input,span);root.append(lab)});
+}
+$('#saveBtn').addEventListener('click',save);
+$('#resetChecks').addEventListener('click',()=>{Object.keys(checked).forEach(k=>delete checked[k]);localStorage.setItem('chama_ticket_checks','{}');renderChecks();toast('チェックをリセットしたよ')});
+renderEvents();renderChecks();
+</script>
+</body>
+</html>
